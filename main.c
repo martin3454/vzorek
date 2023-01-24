@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define blen 3
+#define blen 4
 #define maxradek 100
-#define vzlen 3
-#define pomlen 3
+#define vzlen 4
+#define pomlen 4
 
 struct fronta{
 	char buffer[blen];
@@ -45,11 +45,14 @@ int main(int argc, char **argv)
 	FILE *file = fopen("auto.txt", "r");
 	
 	//char radek[maxradek];
-	char *vzorek = "aha";
+	char *vzorek = "auto";
 	
 	struct fronta Fronta;
 	
 	init_fronta(&Fronta);
+	
+	
+	
 	
 	int z, j = 0; 
 	if((z = nactiznak(&Fronta, file)) != EOF) put_pombuf(&Fronta, z);
@@ -58,6 +61,7 @@ int main(int argc, char **argv)
 		
 		if(z != vzorek[j] && z != '\n'){
 			j = 0;
+			//puts("nesouhlas");
 			clear_mainfronta(&Fronta);
 			pombufTofronta(&Fronta);
 			get_mainfronta(&Fronta, &z);
@@ -65,7 +69,8 @@ int main(int argc, char **argv)
 			
 			while(!jeFrontaprazdna(&Fronta)){
 				z = nactiznak(&Fronta, file);
-				put_pombuf(&Fronta, z);
+				if(z != '\n') put_pombuf(&Fronta, z);
+				//printf("vkladam ve vedlejsi %c \n", z);
 				if(z != vzorek[j++]){
 					j = 0;
 					get_pombuf(&Fronta, &z);
@@ -76,12 +81,13 @@ int main(int argc, char **argv)
 				
 				
 		z = nactiznak(&Fronta, file);
-		printf("%c", z);
-		put_pombuf(&Fronta, z);
+		//printf("%c", z);
+		if(z != '\n') put_pombuf(&Fronta, z);
+		//printf("vkladam v hlavni %c na index %d \n", z, j);
 	}
 	
 	if(j >= vzlen) puts("je tam");
-	else puts("neni");                   //ctrl + z  EOF
+	else puts("neni");               //ctrl + z  EOF
 	
 	
 
@@ -166,7 +172,7 @@ void put_mainfronta(struct fronta *pt, char item){
 		puts("fronta je plno");
 		return;
 	}else{
-		printf("vkladam do buf: %c\n", item);
+		//printf("vkladam do buf: %c\n", item);
 		pt->b_kon = (pt->b_kon + 1) % blen;
         pt->buffer[pt->b_kon] = item;
         pt->b_pocet++;
@@ -181,7 +187,7 @@ void get_mainfronta(struct fronta *pt, char *item){
 	}
 	pt->b_zac = pt->b_zac % blen;
 	*item = pt->buffer[pt->b_zac++];
-	printf("ziskavam znak : %c\n", *item);
+	//printf("ziskavam znak : %c\n", *item);
 	--pt->b_pocet;
 }
 
@@ -191,7 +197,7 @@ void put_pombuf(struct fronta *pt, char item){
 		puts("pom je plno");
 		return;
 	}else{
-		printf("vkladam do pom: %c\n", item);
+		//printf("vkladam do pom: %c\n", item);
 		pt->pom_kon = (pt->pom_kon + 1) % pomlen;
         pt->pom_buf[pt->pom_kon] = item;
         pt->pom_pocet++;
