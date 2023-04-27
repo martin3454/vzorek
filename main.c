@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define blen 4
+#define blen 100
 #define maxradek 100
-#define vzlen 4
-#define pomlen 4
+#define pomlen 100
 
 struct fronta{
 	char buffer[blen];
@@ -15,23 +14,18 @@ struct fronta{
 };
 
 void init_fronta(struct fronta *pt);
-void put_mainfronta(struct fronta *pt, char item);
+void put_mainfronta(struct fronta *pt, const char item);
 void get_mainfronta(struct fronta *pt, char *item);
 
-
 void pombufTofronta(struct fronta *pt);
-
 
 char nactiznak(struct fronta *pt, FILE *fp);
 int jeFrontaprazdna(struct fronta *pt);
 
-
 //int nacti_radek(char *radek, int lim, struct fronta *pt);
 
-
-void put_pombuf(struct fronta *pt, char znak);
+void put_pombuf(struct fronta *pt, const char znak);
 void get_pombuf(struct fronta *pt, char *item);
-
 
 void clear_mainfronta(struct fronta *pt);
 void clear_pombuf(struct fronta *pt);
@@ -40,19 +34,17 @@ void clear_pombuf(struct fronta *pt);
 
 int main(int argc, char **argv)
 {
+		
+	FILE *file = fopen("picko.txt", "r");
+	char radek[maxradek];
+	char *vzorek = "11111111";
 	
-	
-	FILE *file = fopen("auto.txt", "r");
-	
-	//char radek[maxradek];
-	char *vzorek = "auto";
+	int vzlen = strlen(vzorek);
 	
 	struct fronta Fronta;
 	
 	init_fronta(&Fronta);
-	
-	
-	
+	fpos_t pozice;
 	
 	int z, j = 0; 
 	if((z = nactiznak(&Fronta, file)) != EOF) put_pombuf(&Fronta, z);
@@ -61,7 +53,6 @@ int main(int argc, char **argv)
 		
 		if(z != vzorek[j] && z != '\n'){
 			j = 0;
-			//puts("nesouhlas");
 			clear_mainfronta(&Fronta);
 			pombufTofronta(&Fronta);
 			get_mainfronta(&Fronta, &z);
@@ -70,24 +61,28 @@ int main(int argc, char **argv)
 			while(!jeFrontaprazdna(&Fronta)){
 				z = nactiznak(&Fronta, file);
 				if(z != '\n') put_pombuf(&Fronta, z);
-				//printf("vkladam ve vedlejsi %c \n", z);
 				if(z != vzorek[j++]){
 					j = 0;
 					get_pombuf(&Fronta, &z);
 				}
+				if(j >= vzlen) fgetpos(file, &pozice);
 			}
 			
 		}else if(z != '\n') j++;
 				
-				
+		if(j >= vzlen) fgetpos(file, &pozice);
 		z = nactiznak(&Fronta, file);
-		//printf("%c", z);
 		if(z != '\n') put_pombuf(&Fronta, z);
-		//printf("vkladam v hlavni %c na index %d \n", z, j);
 	}
 	
 	if(j >= vzlen) puts("je tam");
-	else puts("neni");               //ctrl + z  EOF
+	else puts("neni");              //ctrl + z  EOF
+	
+	pozice -= vzlen;
+	fsetpos(file, &pozice);
+	fgets(radek, 100, file);
+	
+	printf("%s\n", radek);
 	
 	
 
@@ -147,7 +142,6 @@ void init_fronta(struct fronta* pt){
 	pt->pom_kon = -1;
 	pt->pom_pocet = 0;
 	
-	
 	memset(pt->buffer, 0, blen);
 	memset(pt->pom_buf, 0, pomlen);
 }
@@ -166,7 +160,7 @@ void clear_pombuf(struct fronta *pt){
 }
 
 
-void put_mainfronta(struct fronta *pt, char item){
+void put_mainfronta(struct fronta *pt, const char item){
 	
 	if(pt->b_pocet == blen){
 		puts("fronta je plno");
@@ -191,7 +185,7 @@ void get_mainfronta(struct fronta *pt, char *item){
 	--pt->b_pocet;
 }
 
-void put_pombuf(struct fronta *pt, char item){
+void put_pombuf(struct fronta *pt, const char item){
 	
 	if(pt->pom_pocet == pomlen){
 		puts("pom je plno");
