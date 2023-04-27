@@ -35,7 +35,7 @@ void clear_pombuf(struct fronta *pt);
 int main(int argc, char **argv)
 {
 		
-	FILE *file = fopen("picko.txt", "r");
+	FILE *file = fopen("pi.txt", "r");
 	char radek[maxradek];
 	char *vzorek = "11111111";
 	
